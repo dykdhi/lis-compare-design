@@ -116,7 +116,7 @@ const App = observer(() => {
         <main className="flex-1 flex flex-col overflow-hidden bg-white">
           <div className="flex-1 overflow-auto p-4">
               <img
-                src={store.isSideBySide ? '/compare.png' : '/differences.png'}
+                src={store.isSideBySide ? `${import.meta.env.BASE_URL}compare.png` : `${import.meta.env.BASE_URL}differences.png`}
                 alt={store.isSideBySide ? 'Side by side comparison' : 'Differences'}
                 className="max-w-full h-auto"
               />
