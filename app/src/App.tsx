@@ -18,7 +18,7 @@ const App = observer(() => {
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Top App Bar */}
       <header className="flex items-center justify-between px-4 bg-gray-500 text-white shrink-0" style={{ height: '60px' }}>
-        <span className="text-lg font-semibold tracking-wide">LISHWQMS - Compare Report Design</span>
+        <span className="text-lg font-semibold tracking-wide">LISHWQMS - Compare Report Design Draft</span>
         <div className="flex items-center gap-3">
           {/* Placeholder for icons/user menu */}
           <div className="w-8 h-8 rounded-full bg-gray-400" aria-label="User menu placeholder" />
