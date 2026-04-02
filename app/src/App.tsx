@@ -35,7 +35,7 @@ const App = observer(() => {
             <section className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <SelectField label="Report Type" value={store.reportType} options={REPORT_TYPES} onChange={(v) => store.set('reportType', v)} />
-                <SelectField label="Parameter" value={store.parameter} options={PARAMETERS} onChange={(v) => store.set('parameter', v)} />
+                <SelectField label="Variable" value={store.parameter} options={PARAMETERS} onChange={(v) => store.set('parameter', v)} />
               </div>
             </section>
 
