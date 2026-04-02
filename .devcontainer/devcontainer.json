@@ -1,0 +1,34 @@
+{
+    "name": "copilot general",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "remoteUser": "developer",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.pylint",
+                "ms-toolsai.jupyter",
+                "esbenp.prettier-vscode"
+            ]
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+    },
+
+    "postCreateCommand": "curl -fsSL https://gh.io/copilot-install | bash",
+
+    "runArgs": [
+		"--memory=12g",
+		"--cpus=4.0"
+	],
+
+    // export HOST_SYNC_PATH="/mnt/c/sync/temp" or similar in your ~/.profile
+	// .ssh for git auth
+	"mounts": [
+		"type=bind,source=${localEnv:HOST_SYNC_PATH},target=/data",
+		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/developer/.ssh,readonly"
+	]
+}
