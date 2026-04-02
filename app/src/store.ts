@@ -148,7 +148,7 @@ class ReportStore {
     if (comparisonMode?.baseline === this.scenario) {
       return 'This is the matching baseline'
     }
-    return 'This is a baseline'
+    return 'This is a non-matching baseline'
   }
 
   get comparisonModeNote() {
@@ -160,7 +160,7 @@ class ReportStore {
     if (scenario?.baseline === this.comparisonMode) {
       return 'This is the matching baseline'
     }
-    return 'This is a baseline'
+    return 'This is a non-matching baseline'
   }
 
   get canMatchBaseline() {
