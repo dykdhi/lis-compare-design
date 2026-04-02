@@ -4,7 +4,7 @@
     {
       "label": "killPort5173",
       "type": "shell",
-      "command": "lsof -ti :5173 | xargs -r kill -9",
+      "command": "for pid in /proc/[0-9]*/; do if [ -f \"$pid/cmdline\" ]; then cmd=$(tr '\\0' ' ' < \"$pid/cmdline\"); if echo \"$cmd\" | grep -q \"node /workspaces/copilot-general/app/node_modules/.bin/vite\"; then pid_num=$(basename $pid); kill -9 $pid_num 2>/dev/null || true; fi; fi; done",
       "presentation": {
         "reveal": "silent"
       },
