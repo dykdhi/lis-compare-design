@@ -2,13 +2,13 @@ import { makeAutoObservable } from 'mobx'
 
 export const REPORT_TYPES = [
   { value: 'compare', label: 'Compare' },
-  { value: 'hypoxia', label: 'Hypoxia' },
 ]
 
 export const PARAMETERS = [
   { value: 'salinity', label: 'Salinity' },
   { value: 'temperature', label: 'Temperature' },
-  { value: 'oxygen', label: 'Oxygen' },
+  { value: 'oxygen', label: 'Dissolved Oxygen' },
+  { value: 'all-others', label: '...all others' },
 ]
 
 export const TIME_PERIOD_TYPES = [
@@ -31,7 +31,7 @@ export const ANALYSIS_OPTIONS = [
 ]
 
 export const SCENARIOS = [
-  { value: 'dyk-scenario', label: 'DYK Scenario', baseline: 'baseline' },
+  { value: 'dyk-scenario', label: 'Dylan Scenario', baseline: 'baseline' },
   { value: 'baseline', label: 'Baseline' },
   { value: 'post-development-bioextractions', label: 'Post-Development Bioextractions' },
   { value: 'andy-scenario', label: 'Andy Scenario', baseline: 'post-development-bioextractions' },
@@ -44,24 +44,35 @@ export const POINTS = [
   'Central Sound',
 ]
 
-export interface ChartData {
-  dates: string[]
+export interface ChartSeries {
+  name: string
   values: number[]
+  secondary?: boolean
 }
 
-function generateMockChartData(): ChartData {
+export interface ChartData {
+  dates: string[]
+  series: ChartSeries[]
+}
+
+function generateMockValues(length: number): number[] {
+  return Array.from({ length }, (_, i) => Math.sin(i / 50) * 10 + Math.random() * 5 + 50)
+}
+
+function generateMockChartData(seriesNames: string[]): ChartData {
   const dates: string[] = []
-  const values: number[] = []
   const startDate = new Date(2024, 0, 1)
 
   for (let i = 0; i < 365; i++) {
     const date = new Date(startDate)
     date.setDate(date.getDate() + i)
     dates.push(date.toISOString().split('T')[0])
-    values.push(Math.sin(i / 50) * 10 + Math.random() * 5 + 50)
   }
 
-  return { dates, values }
+  return {
+    dates,
+    series: seriesNames.map((name) => ({ name, values: generateMockValues(365) })),
+  }
 }
 
 
@@ -179,10 +190,39 @@ class ReportStore {
     }
   }
 
+  get isSideBySide() {
+    return this.analysis === 'side-by-side'
+  }
+
+  get isDifferences() {
+    return this.analysis === 'differences'
+  }
+
+  get scenarioLabel() {
+    return SCENARIOS.find((s) => s.value === this.scenario)?.label ?? this.scenario
+  }
+
+  get comparisonModeLabel() {
+    return SCENARIOS.find((s) => s.value === this.comparisonMode)?.label ?? this.comparisonMode
+  }
+
   getChartDataForPoint(): Map<string, ChartData> {
     const chartDataMap = new Map<string, ChartData>()
+    const seriesNames = (this.isSideBySide || this.isDifferences)
+      ? [this.scenarioLabel, this.comparisonModeLabel]
+      : [this.scenarioLabel]
     for (const point of this.points) {
-      chartDataMap.set(point, generateMockChartData())
+      const base = generateMockChartData(seriesNames)
+      if (this.isDifferences) {
+        const aVals = base.series[0].values
+        const bVals = base.series[1].values
+        base.series.push({
+          name: 'Difference',
+          values: aVals.map((v, i) => v - bVals[i]),
+          secondary: true,
+        })
+      }
+      chartDataMap.set(point, base)
     }
     return chartDataMap
   }

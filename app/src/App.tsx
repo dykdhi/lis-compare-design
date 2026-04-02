@@ -17,11 +17,11 @@ const App = observer(() => {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Top App Bar */}
-      <header className="flex items-center justify-between px-4 bg-indigo-700 text-white shrink-0" style={{ height: '60px' }}>
-        <span className="text-lg font-semibold tracking-wide">LISHWQMS - Compare Report</span>
+      <header className="flex items-center justify-between px-4 bg-gray-500 text-white shrink-0" style={{ height: '60px' }}>
+        <span className="text-lg font-semibold tracking-wide">LISHWQMS - Compare Report Design</span>
         <div className="flex items-center gap-3">
           {/* Placeholder for icons/user menu */}
-          <div className="w-8 h-8 rounded-full bg-indigo-500" aria-label="User menu placeholder" />
+          <div className="w-8 h-8 rounded-full bg-gray-400" aria-label="User menu placeholder" />
         </div>
       </header>
 
@@ -29,10 +29,9 @@ const App = observer(() => {
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
 
         {/* Left Controls Panel */}
-        <aside className="w-full lg:w-[620px] shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 bg-white overflow-y-auto">
-          {/* Sticky header */}
-
-          <div className="flex flex-col gap-6 p-4 flex-1">
+        <aside className="w-full lg:w-[620px] shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 bg-white overflow-hidden">
+          {/* Non-scrollable controls section */}
+          <div className="flex flex-col gap-6 p-4 shrink-0">
             <section className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <SelectField label="Report Type" value={store.reportType} options={REPORT_TYPES} onChange={(v) => store.set('reportType', v)} />
@@ -67,8 +66,7 @@ const App = observer(() => {
                 <div className="flex-1">
                   <SelectField label="Left Side (A)" value={store.scenario} options={store.scenarioOptions} onChange={(v) => store.set('scenario', v)} helperText={store.scenarioNote} />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <div className="h-3" />
+                <div className="pt-5">
                   <button
                     onClick={() => store.matchBaseline()}
                     disabled={!store.canMatchBaseline}
@@ -97,21 +95,32 @@ const App = observer(() => {
               />
             </section>
           </div>
+
+          {/* Scrollable charts panel */}
+          <div className="flex-1 overflow-y-auto border-t border-gray-200">
+            <div className="p-4 flex flex-col gap-4">
+              {store.points.length === 0 ? (
+                <div className="flex items-center justify-center rounded border border-gray-300 bg-gray-100 text-gray-400 text-base py-8">
+                  Select points to view charts
+                </div>
+              ) : (
+                Array.from(store.getChartDataForPoint()).map(([point, data]) => (
+                  <Chart key={point} title={point} data={data} />
+                ))
+              )}
+            </div>
+          </div>
         </aside>
 
         {/* Right Data Panel */}
         <main className="flex-1 flex flex-col overflow-hidden bg-white">
-          <div className="flex-1 p-4 flex flex-col overflow-y-auto gap-4">
-            {store.points.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center rounded border border-gray-300 bg-gray-100 text-gray-400 text-base">
-                Select points to view charts
-              </div>
-            ) : (
-              Array.from(store.getChartDataForPoint()).map(([point, data]) => (
-                <Chart key={point} title={point} data={data} />
-              ))
-            )}
-          </div>
+          <div className="flex-1 overflow-auto p-4">
+              <img
+                src={store.isSideBySide ? '/compare.png' : '/differences.png'}
+                alt={store.isSideBySide ? 'Side by side comparison' : 'Differences'}
+                className="max-w-full h-auto"
+              />
+            </div>
         </main>
 
       </div>
