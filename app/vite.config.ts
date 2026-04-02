@@ -15,4 +15,7 @@ export default defineConfig({
       clientPort: 5173,
     },
   },
+  optimizeDeps: {
+    include: ['react-plotly.js'],
+  },
 })

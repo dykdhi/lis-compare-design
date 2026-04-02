@@ -1,4 +1,6 @@
-import Plot from 'react-plotly.js'
+import PlotModule from 'react-plotly.js'
+
+const Plot = (PlotModule as any).default || PlotModule
 
 export interface ChartData {
   dates: string[]
