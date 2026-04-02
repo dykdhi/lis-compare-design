@@ -6,9 +6,11 @@ import {
   TIME_PERIOD_TYPES,
   MODEL_LAYER_OPTIONS,
   ANALYSIS_OPTIONS,
+  POINTS,
 } from './store'
 import { SelectField } from './components/SelectField'
 import { MultiCombobox } from './components/MultiCombobox'
+import { Chart } from './components/Chart'
 
 const App = observer(() => {
   const store = reportStore
@@ -82,31 +84,33 @@ const App = observer(() => {
                 </div>
               </div>
             </section>
-          </div>
 
-          {/* Reset / Apply */}
-          <div className="px-4 pb-4 pt-2 border-t border-gray-200">
-            <div className="flex gap-2">
-              <button
-                onClick={() => store.reset()}
-                className="flex-1 h-9 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                Reset
-              </button>
-              <button className="flex-1 h-9 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700">
-                Apply
-              </button>
-            </div>
+            <div className="border-t border-gray-200" />
+
+            <section className="space-y-3">
+              <MultiCombobox
+                label="Points"
+                selected={store.points}
+                options={POINTS}
+                onChange={(points) => store.set('points', points)}
+                minSelected={1}
+              />
+            </section>
           </div>
         </aside>
 
         {/* Right Data Panel */}
         <main className="flex-1 flex flex-col overflow-hidden bg-white">
-          <div className="flex-1 p-4 flex flex-col overflow-hidden">
-            {/* Map Placeholder */}
-            <div className="flex-1 flex items-center justify-center rounded border border-gray-300 bg-gray-100 text-gray-400 text-base">
-              Map Placeholder
-            </div>
+          <div className="flex-1 p-4 flex flex-col overflow-y-auto gap-4">
+            {store.points.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center rounded border border-gray-300 bg-gray-100 text-gray-400 text-base">
+                Select points to view charts
+              </div>
+            ) : (
+              Array.from(store.getChartDataForPoint()).map(([point, data]) => (
+                <Chart key={point} title={point} data={data} />
+              ))
+            )}
           </div>
         </main>
 

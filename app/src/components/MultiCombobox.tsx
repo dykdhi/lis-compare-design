@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-export function MultiCombobox({
+export function MultiCombobox<T extends string | number>({
   label,
   selected,
   options,
@@ -8,9 +8,9 @@ export function MultiCombobox({
   minSelected = 0,
 }: {
   label: string
-  selected: number[]
-  options: number[]
-  onChange: (selected: number[]) => void
+  selected: T[]
+  options: T[]
+  onChange: (selected: T[]) => void
   minSelected?: number
 }) {
   const [open, setOpen] = useState(false)
@@ -24,9 +24,14 @@ export function MultiCombobox({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  function toggle(n: number) {
+  function toggle(n: T) {
     if (selected.includes(n) && selected.length <= minSelected) return
-    onChange(selected.includes(n) ? selected.filter((x) => x !== n) : [...selected, n].sort((a, b) => a - b))
+    const newSelected = selected.includes(n) ? selected.filter((x) => x !== n) : [...selected, n]
+    if (typeof n === 'number') {
+      onChange((newSelected as number[]).sort((a, b) => a - b) as T[])
+    } else {
+      onChange(newSelected)
+    }
   }
 
   const displayText = selected.length === 0 ? 'Select…' : selected.join(', ')

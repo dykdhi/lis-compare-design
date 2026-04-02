@@ -37,6 +37,33 @@ export const SCENARIOS = [
   { value: 'andy-scenario', label: 'Andy Scenario', baseline: 'post-development-bioextractions' },
 ]
 
+export const POINTS = [
+  'Point A',
+  'Point B',
+  'Hudson River',
+  'Central Sound',
+]
+
+export interface ChartData {
+  dates: string[]
+  values: number[]
+}
+
+function generateMockChartData(): ChartData {
+  const dates: string[] = []
+  const values: number[] = []
+  const startDate = new Date(2024, 0, 1)
+
+  for (let i = 0; i < 365; i++) {
+    const date = new Date(startDate)
+    date.setDate(date.getDate() + i)
+    dates.push(date.toISOString().split('T')[0])
+    values.push(Math.sin(i / 50) * 10 + Math.random() * 5 + 50)
+  }
+
+  return { dates, values }
+}
+
 
 class ReportStore {
   reportType = REPORT_TYPES[0].value
@@ -48,6 +75,7 @@ class ReportStore {
   analysis = ANALYSIS_OPTIONS[0].value
   scenario = SCENARIOS[0].value
   comparisonMode = SCENARIOS[1].value
+  points: string[] = [POINTS[0]]
 
   constructor() {
     makeAutoObservable(this)
@@ -151,6 +179,14 @@ class ReportStore {
     }
   }
 
+  getChartDataForPoint(): Map<string, ChartData> {
+    const chartDataMap = new Map<string, ChartData>()
+    for (const point of this.points) {
+      chartDataMap.set(point, generateMockChartData())
+    }
+    return chartDataMap
+  }
+
   reset() {
     this.reportType = REPORT_TYPES[0].value
     this.parameter = PARAMETERS[0].value
@@ -161,6 +197,7 @@ class ReportStore {
     this.analysis = ANALYSIS_OPTIONS[0].value
     this.scenario = SCENARIOS[0].value
     this.comparisonMode = SCENARIOS[1].value
+    this.points = [POINTS[0]]
   }
 }
 

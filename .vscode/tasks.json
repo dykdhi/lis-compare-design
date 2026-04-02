@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "killPort5173",
+      "type": "shell",
+      "command": "lsof -ti :5173 | xargs -r kill -9",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": [],
+      "isBackground": false
+    }
+  ]
+}
