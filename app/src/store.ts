@@ -91,21 +91,37 @@ class ReportStore {
   }
 
   get scenarioOptions() {
-    return SCENARIOS.filter((s) => s.value !== this.comparisonMode)
+    return SCENARIOS
+      .filter((s) => s.value !== this.comparisonMode)
   }
 
   get comparisonModeOptions() {
-    return SCENARIOS.filter((s) => s.value !== this.scenario)
+    return SCENARIOS
+      .filter((s) => s.value !== this.scenario)
   }
 
-  get scenarioIsBaseline() {
-    const right = SCENARIOS.find((s) => s.value === this.comparisonMode)
-    return right?.baseline === this.scenario
+  get scenarioNote() {
+    const scenario = SCENARIOS.find((s) => s.value === this.scenario)
+    if (scenario?.baseline) {
+      return 'This is a user scenario'
+    }
+    const comparisonMode = SCENARIOS.find((s) => s.value === this.comparisonMode)
+    if (comparisonMode?.baseline === this.scenario) {
+      return 'This is the matching baseline'
+    }
+    return 'This is a baseline'
   }
 
-  get comparisonModeIsBaseline() {
-    const left = SCENARIOS.find((s) => s.value === this.scenario)
-    return left?.baseline === this.comparisonMode
+  get comparisonModeNote() {
+    const comparisonMode = SCENARIOS.find((s) => s.value === this.comparisonMode)
+    if (comparisonMode?.baseline) {
+      return 'This is a user scenario'
+    }
+    const scenario = SCENARIOS.find((s) => s.value === this.scenario)
+    if (scenario?.baseline === this.comparisonMode) {
+      return 'This is the matching baseline'
+    }
+    return 'This is a baseline'
   }
 
   get canMatchBaseline() {

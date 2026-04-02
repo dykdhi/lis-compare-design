@@ -63,7 +63,7 @@ const App = observer(() => {
             <section className="space-y-3">
               <div className="flex items-end gap-2">
                 <div className="flex-1">
-                  <SelectField label="Left Side (A)" value={store.scenario} options={store.scenarioOptions} onChange={(v) => store.set('scenario', v)} baselineMatch={store.scenarioIsBaseline} />
+                  <SelectField label="Left Side (A)" value={store.scenario} options={store.scenarioOptions} onChange={(v) => store.set('scenario', v)} helperText={store.scenarioNote} />
                 </div>
                 <button
                   onClick={() => store.matchBaseline()}
@@ -75,7 +75,7 @@ const App = observer(() => {
                   ⇄
                 </button>
                 <div className="flex-1">
-                  <SelectField label="Right Side (B)" value={store.comparisonMode} options={store.comparisonModeOptions} onChange={(v) => store.set('comparisonMode', v)} baselineMatch={store.comparisonModeIsBaseline} />
+                  <SelectField label="Right Side (B)" value={store.comparisonMode} options={store.comparisonModeOptions} onChange={(v) => store.set('comparisonMode', v)} helperText={store.comparisonModeNote} />
                 </div>
               </div>
             </section>
