@@ -1,8 +1,8 @@
 import { makeAutoObservable } from 'mobx'
 
 export const REPORT_TYPES = [
-  { value: 'hypoxia', label: 'Hypoxia' },
   { value: 'compare', label: 'Compare' },
+  { value: 'hypoxia', label: 'Hypoxia' },
 ]
 
 export const PARAMETERS = [
@@ -25,73 +25,126 @@ export const TIME_STATISTICS = [
 
 export const MODEL_LAYER_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-export const SPATIAL_AGGREGATIONS = [
-  { value: '', label: 'Select…' },
-  { value: 'county', label: 'County' },
-  { value: 'state', label: 'State' },
-  { value: 'region', label: 'Region' },
-]
-
-export const TEMPORAL_AGGREGATIONS = [
-  { value: '', label: 'Select…' },
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'quarterly', label: 'Quarterly' },
-  { value: 'yearly', label: 'Yearly' },
+export const ANALYSIS_OPTIONS = [
+  { value: 'side-by-side', label: 'Side By Side' },
+  { value: 'differences', label: 'Differences' },
 ]
 
 export const SCENARIOS = [
-  { value: '', label: 'Select…' },
+  { value: 'dyk-scenario', label: 'DYK Scenario', baseline: 'baseline' },
   { value: 'baseline', label: 'Baseline' },
-  { value: 'rcp45', label: 'RCP 4.5' },
-  { value: 'rcp85', label: 'RCP 8.5' },
+  { value: 'post-development-bioextractions', label: 'Post-Development Bioextractions' },
+  { value: 'andy-scenario', label: 'Andy Scenario', baseline: 'post-development-bioextractions' },
 ]
 
-export const COMPARISON_MODES = [
-  { value: '', label: 'Select…' },
-  { value: 'none', label: 'None' },
-  { value: 'absolute', label: 'Absolute Difference' },
-  { value: 'percent', label: 'Percent Change' },
-]
 
 class ReportStore {
-  reportType = 'compare'
-  parameter = 'salinity'
-  timePeriod = 'full'
-  timeStatistic = 'none'
-  modelLayers: number[] = []
-  modelLayerStat = 'none'
-  spatialAgg = ''
-  temporalAgg = ''
-  scenario = ''
-  comparisonMode = ''
+  reportType = REPORT_TYPES[0].value
+  parameter = PARAMETERS[0].value
+  timePeriod = TIME_PERIOD_TYPES[0].value
+  timeStatistic = TIME_STATISTICS[0].value
+  modelLayers: number[] = [MODEL_LAYER_OPTIONS[0]]
+  modelLayerStat = TIME_STATISTICS[0].value
+  analysis = ANALYSIS_OPTIONS[0].value
+  scenario = SCENARIOS[0].value
+  comparisonMode = SCENARIOS[1].value
 
   constructor() {
     makeAutoObservable(this)
   }
 
+  get isTimePeriodFull() {
+    return this.timePeriod === TIME_PERIOD_TYPES[0].value
+  }
+
+  get isModelLayerSingle() {
+    return this.modelLayers.length === 1
+  }
+
+  get timeStatisticOptions() {
+    if (this.timePeriod === TIME_PERIOD_TYPES[1].value) {
+      return TIME_STATISTICS.filter((s) => s.value !== TIME_STATISTICS[0].value)
+    }
+    return TIME_STATISTICS
+  }
+
+  get modelLayerStatOptions() {
+    if (this.modelLayers.length > 1) {
+      return TIME_STATISTICS.filter((s) => s.value !== TIME_STATISTICS[0].value)
+    }
+    return TIME_STATISTICS
+  }
+
   set<K extends keyof this>(key: K, value: this[K]) {
     this[key] = value
+    if (key === 'timePeriod') {
+      if ((value as string) === TIME_PERIOD_TYPES[0].value) {
+        this.timeStatistic = TIME_STATISTICS[0].value
+      } else if ((value as string) === TIME_PERIOD_TYPES[1].value) {
+        this.timeStatistic = TIME_STATISTICS[1].value
+      }
+    }
+    if (key === 'modelLayers') {
+      const layers = value as number[]
+      this.modelLayerStat = layers.length === 1 ? TIME_STATISTICS[0].value : TIME_STATISTICS[1].value
+    }
+  }
+
+  get scenarioOptions() {
+    return SCENARIOS.filter((s) => s.value !== this.comparisonMode)
+  }
+
+  get comparisonModeOptions() {
+    return SCENARIOS.filter((s) => s.value !== this.scenario)
+  }
+
+  get scenarioIsBaseline() {
+    const right = SCENARIOS.find((s) => s.value === this.comparisonMode)
+    return right?.baseline === this.scenario
+  }
+
+  get comparisonModeIsBaseline() {
+    const left = SCENARIOS.find((s) => s.value === this.scenario)
+    return left?.baseline === this.comparisonMode
+  }
+
+  get canMatchBaseline() {
+    const left = SCENARIOS.find((s) => s.value === this.scenario)
+    const right = SCENARIOS.find((s) => s.value === this.comparisonMode)
+    return !!(left?.baseline || right?.baseline)
+  }
+
+  matchBaseline() {
+    const left = SCENARIOS.find((s) => s.value === this.scenario)
+    if (left?.baseline) {
+      this.comparisonMode = left.baseline
+      return
+    }
+    const right = SCENARIOS.find((s) => s.value === this.comparisonMode)
+    if (right?.baseline) {
+      this.scenario = right.baseline
+    }
   }
 
   toggleModelLayer(n: number) {
     if (this.modelLayers.includes(n)) {
-      this.modelLayers = this.modelLayers.filter((x) => x !== n)
+      if (this.modelLayers.length === 1) return
+      this.set('modelLayers', this.modelLayers.filter((x) => x !== n))
     } else {
-      this.modelLayers = [...this.modelLayers, n].sort((a, b) => a - b)
+      this.set('modelLayers', [...this.modelLayers, n].sort((a, b) => a - b))
     }
   }
 
   reset() {
-    this.reportType = 'compare'
-    this.parameter = 'salinity'
-    this.timePeriod = 'full'
-    this.timeStatistic = 'none'
-    this.modelLayers = []
-    this.modelLayerStat = 'none'
-    this.spatialAgg = ''
-    this.temporalAgg = ''
-    this.scenario = ''
-    this.comparisonMode = ''
+    this.reportType = REPORT_TYPES[0].value
+    this.parameter = PARAMETERS[0].value
+    this.timePeriod = TIME_PERIOD_TYPES[0].value
+    this.timeStatistic = TIME_STATISTICS[0].value
+    this.modelLayers = [MODEL_LAYER_OPTIONS[0]]
+    this.modelLayerStat = TIME_STATISTICS[0].value
+    this.analysis = ANALYSIS_OPTIONS[0].value
+    this.scenario = SCENARIOS[0].value
+    this.comparisonMode = SCENARIOS[1].value
   }
 }
 

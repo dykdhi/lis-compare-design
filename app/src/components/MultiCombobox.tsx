@@ -5,11 +5,13 @@ export function MultiCombobox({
   selected,
   options,
   onChange,
+  minSelected = 0,
 }: {
   label: string
   selected: number[]
   options: number[]
   onChange: (selected: number[]) => void
+  minSelected?: number
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -23,6 +25,7 @@ export function MultiCombobox({
   }, [])
 
   function toggle(n: number) {
+    if (selected.includes(n) && selected.length <= minSelected) return
     onChange(selected.includes(n) ? selected.filter((x) => x !== n) : [...selected, n].sort((a, b) => a - b))
   }
 
@@ -50,7 +53,8 @@ export function MultiCombobox({
                   type="checkbox"
                   checked={selected.includes(n)}
                   onChange={() => toggle(n)}
-                  className="rounded border-gray-300 text-blue-600"
+                  disabled={selected.includes(n) && selected.length <= minSelected}
+                  className="rounded border-gray-300 text-blue-600 disabled:opacity-50"
                 />
                 {n}
               </label>
